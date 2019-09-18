@@ -33,8 +33,7 @@
             </div>
 
             <div>
-                <button type="submit"
-                    class="btn btn-primary pull-{{ app()->getLocale() == 'en' ? 'right' : 'left' }}">@lang('custom.update')</button>
+                <button type="submit" class="btn btn-primary pull-{{ app()->getLocale() == 'en' ? 'right' : 'left' }}">@lang('custom.update')</button>
             </div>
         </div>
         <!-- /.box-body -->
@@ -42,10 +41,8 @@
     </form>
 
     @push('js')
-    <script src="/noty/noty.min.js">
-    </script>
-
-    <script src="/ckeditor/ckeditor.js"></script>
-    @include('front-end._session')
+        <script src="/noty/noty.min.js"></script>
+        <script src="/ckeditor/ckeditor.js"></script>
+        @include('front-end._session')
     @endpush
-    @endsection
+@endsection

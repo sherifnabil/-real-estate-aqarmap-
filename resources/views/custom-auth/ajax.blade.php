@@ -1,17 +1,19 @@
 <script type="text/javascript">
-    $('#city').change(function(){
-    var cityID = $(this).val();
+    $(document).on("change", "#city", function(){
+
+    var cityID = $("#city option:selected").val();
+    
     if (cityID) {
         $.ajax({
             type:"GET",
             dataType:'html',
-            url:"{{ route('ajax.states', ['id' => " + cityID + "]) }}/",
+            url:"{{ url('/admins/states/ajax') }}/" + cityID,
             success:function(res){
-                $("#state").append().html(res);
+                $("#statesContainer").html(res);
             }
         });
     } else {
-        $("#state").empty();
+        $("#statesContainer").html("");
     }
 });
 </script>

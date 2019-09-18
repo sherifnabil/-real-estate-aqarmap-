@@ -15,12 +15,12 @@ class AdminsMiddleware
      */
     public function handle($request, Closure $next)
     {
-        return $next($request);
+        // return $next($request);
 
-        if (!auth()->user()->user_type == 'admin') {
-            return redirect('/home');
+        if (\Auth::check() && auth()->user()->user_type == 'admin') {
+            return $next($request);
         }
-
-        return $next($request);
+        return redirect('/home');
+        
     }
 }

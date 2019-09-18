@@ -1,47 +1,39 @@
 <?php
 
-use App\Http\Middleware\AdminsMiddleware;
 
 
 
 
 Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']],function () {
-
-    Auth::routes();
     
-        Route::get('temp', 'BackEnd\UsersController@temp');
+    
+        Route::get('/', function () {
+            return view('welcome');
+        });
+        Route::get('about-us/view', 'BackEnd\AboutUsController@view_aboutus')->name('aboutus.view');
+
+        Auth::routes();
         Route::get('/home', 'HomeController@index')->name('home');
-
             
-        Route::group(['prefix' => 'admins', 'namespace' => 'BackEnd' ], function(){
-            
-            // Route::get('login', 'UsersController@login')->name('login');
+        Route::group(['namespace' => 'BackEnd' ], function(){
 
-            Route::get('dashboard', 'UsersController@dashboard')->name('admin.dashboard');
-
-            
-            Route::resource('users', 'UsersController')->except('show');
-            Route::get('admins', 'UsersController@admins')->name('admins')->middleware('admin');
-
-            // ajax get 
-            Route::get('states/ajax/{id}', 'UsersController@ajaxStates')->name('ajax.states');
-            
-            Route::resource('categories', 'CategoriesController');
-            Route::resource('settings', 'SettingsController')->except('show');
-            Route::resource('aboutus', 'AboutUsController')->except('show');
-            Route::resource('cities', 'CitiesController')->except('show');
-            Route::resource('states', 'StatesController')->except('show');
-            Route::resource('property-types', 'PropertyTypeController')->except('show');
-            Route::resource('properties', 'PropertiesController')->except('show');
-            Route::get('properties/pending', 'PropertiesController@pending')->name('properties.pending');
-            Route::get('properties/refused', 'PropertiesController@refused')->name('properties.refused');
+            Route::get('categories/{category}/view', 'CategoriesController@viewProperties')->name('categories.view');
+            Route::get('property-types/{propertyType}/view', 'PropertyTypeController@viewProperties')->name('property-types.view');
+            Route::get('properties/{property}/view', 'PropertiesController@viewProperty')->name('properties.view');
+            Route::get('cities/{city}/view', 'CitiesController@viewProperties')->name('cities.view');
+            Route::get('states/{state}/view', 'StatesController@viewProperties')->name('states.view');
+            Route::get('users/{user}/profile', 'UsersController@profile')->name('users.profile');
+            Route::get('add/property', 'PropertiesController@add_property')->name('add.property');
+            Route::post('add/property', 'PropertiesController@store_property')->name('store.property');
+            Route::get('edit/{property}/property', 'PropertiesController@edit_property')->name('edit.property');
+            Route::post('update/{property}/property', 'PropertiesController@update_property')->name('update.property');
+            Route::get('users/{user}/edit', 'UsersController@edit_profile')->name('profile.edit');
+            Route::post('users/{user}/update', 'UsersController@update_profile')->name('profile.update');
+            Route::get('properties/{property}/activate', 'PropertiesController@activateProperty')->name('properties.activate');
         });
 
 
-    Route::get('/', function () {
-        return view('welcome');
-    });
 
-
+    
 
 });

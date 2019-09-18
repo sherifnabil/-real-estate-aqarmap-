@@ -3,12 +3,18 @@
 namespace App\Http\Controllers\BackEnd;
 
 use App\City;
+use App\Property;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class CitiesController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['viewProperties']);
+    }
 
     public function index(Request $request)
     {
@@ -100,5 +106,15 @@ class CitiesController extends Controller
         $city->delete();
         session()->flash('success', __('custom.deleted_successfully'));
         return back();
+    }
+
+
+    public function viewProperties(City $city)
+    {
+        $title =  __('custom.city') . ' ' . ucwords($city->name);
+        $properties =  $city->properties;
+        $recent_properties = Property::where('status', 'active')->orderBy('id', 'DESC')->take(3)->get();
+
+        return view('front-end2.view', compact('title', 'properties', 'recent_properties' ));
     }
 }

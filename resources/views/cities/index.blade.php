@@ -1,8 +1,7 @@
 @extends('admins.partials.main')
 @section('content')
-
-<div class="content-wrapper">       
-     <div class="content-header"">
+    <div class="content-wrapper">       
+        <div class="content-header"">
             <h3 class="">{{ $title }}  <a href="{{ route('cities.create') }}" class="btn btn-primary">@lang('custom.add')</a></h3>
             <div class="pull-right">
                 <form action="{{ route('cities.index') }}"> 
@@ -35,26 +34,24 @@
                 <tbody>
                     
                     @foreach ($rows as $row)
-                    <tr>
-                        
-                        <td>{{ $row->id }}</td>
-                        <td>{{ $row->name }}</td>
-                        <td><img style="width:50px; height:50px" src="{{ asset('storage/' . $row->main_image) }}" ></td>
-                        <td>{{ $row->created_at->format('d-m-Y h:i') }}</td>
-                        <td>{{ $row->updated_at->format('d-m-Y h:i') }}</td>
-                        <td><a href="{{ route('cities.edit', $row) }}" class="btn btn-primary"> <i class="fa fa-edit"></i></a></td>
-                        <td>
-                            <form action="{{ route('cities.destroy', $row) }}" method="POST">
-                                @method('DELETE')
-                                @csrf
-                                <button type="submit" class="btn btn-danger">
+                        <tr>
+                            <td>{{ $row->id }}</td>
+                            <td>{{ $row->name }}</td>
+                            <td><img style="width:50px; height:50px" src="{{ asset('storage/' . $row->main_image) }}" ></td>
+                            <td>{{ $row->created_at->format('d-m-Y h:i') }}</td>
+                            <td>{{ $row->updated_at->format('d-m-Y h:i') }}</td>
+                            <td><a href="{{ route('cities.edit', $row) }}" class="btn btn-primary"> <i class="fa fa-edit"></i></a></td>
+                            <td>
+                                <form action="{{ route('cities.destroy', $row) }}" method="POST">
+                                    @method('DELETE')
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">
 
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -65,12 +62,8 @@
         </div>
         <!-- /.box-body -->
     </div>
-
-
     @push('js')
-    <script src="/noty/noty.min.js">
-    </script>
-
-    @include('front-end._session')
+        <script src="/noty/noty.min.js"></script>
+        @include('front-end._session')
     @endpush
-    @endsection
+@endsection

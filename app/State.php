@@ -29,7 +29,7 @@ class State extends Model
 
     public function properties()
     {
-        return $this->hasMany(Property::class);
+        return $this->hasMany(Property::class)->where('status', 'active');
     }
 
 }

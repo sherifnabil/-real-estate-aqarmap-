@@ -4,12 +4,20 @@ namespace App\Http\Controllers\BackEnd;
 
 use App\City;
 use App\State;
+use App\Property;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class StatesController extends Controller
 {
+
+
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['viewProperties']);
+    }
  
 
     public function index(Request $request)
@@ -110,4 +118,16 @@ class StatesController extends Controller
         
         return back();
     }
+
+
+    public function viewProperties(State $state)
+    {
+        $title =  __('custom.state') . ' ' . ucwords($state->name);
+        $properties =  $state->properties;
+
+        $recent_properties = Property::where('status', 'active')->orderBy('id', 'DESC')->take(3)->get();
+
+        return view('front-end2.view', compact('title', 'properties', 'recent_properties'));    }
+
+
 }

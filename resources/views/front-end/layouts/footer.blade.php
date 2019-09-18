@@ -19,13 +19,11 @@
 
                 <div class="col-md-3 col-xs-6">
                     <div class="footer">
-                        <h3 class="footer-title">Categories</h3>
+                        <h3 class="footer-title">{{ __('custom.categories') }}</h3>
                         <ul class="footer-links">
-                            <li><a href="#">Hot deals</a></li>
-                            <li><a href="#">Laptops</a></li>
-                            <li><a href="#">Smartphones</a></li>
-                            <li><a href="#">Cameras</a></li>
-                            <li><a href="#">Accessories</a></li>
+                            @foreach (categories() as $item)
+                                <li><a href="{{ route('categories.view', $item) }}">{{ ucfirst($item->name) }}</a></li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>
@@ -34,13 +32,11 @@
 
                 <div class="col-md-3 col-xs-6">
                     <div class="footer">
-                        <h3 class="footer-title">Information</h3>
+                        <h3 class="footer-title">{{ __('custom.property_types') }}</h3>
                         <ul class="footer-links">
-                            <li><a href="#">About Us</a></li>
-                            <li><a href="#">Contact Us</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Orders and Returns</a></li>
-                            <li><a href="#">Terms & Conditions</a></li>
+                            @foreach (PropertyTypes() as $p)
+                                <li><a href="{{ route('property-types.view', $p) }}">{{ ucfirst($p->name) }}</a></li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>

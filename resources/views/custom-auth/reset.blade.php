@@ -1,7 +1,5 @@
-@include('front-end.layouts.header')
-@include('front-end.layouts.nav')
-
-
+@include('front-end2.layouts.header')
+@include('front-end2.layouts.nav')
 <!-- SECTION -->
 <div class="section">
         <!-- container -->
@@ -85,4 +83,4 @@
 
 
 
-@include('front-end.layouts.footer')
+@include('front-end2.layouts.footer')

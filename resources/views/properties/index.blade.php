@@ -1,19 +1,19 @@
 @extends('admins.partials.main')
 @section('content')
 
-<div class="content-wrapper">       
-     <div class="content-header"">
+    <div class="content-wrapper">       
+        <div class="content-header"">
             <h3 class="">{{ $title }}  <a href="{{ route('properties.create') }}" class="btn btn-primary">@lang('custom.add')</a></h3>
             <div class="pull-right">
                 <form action="{{ route('properties.index') }}"> 
-                        <div class="input-group input -group-sm" style="width: 150px;">
+                    <div class="input-group input -group-sm" style="width: 150px;">
 
                         
-                        <input type="text" name="search" class="form-control pull-right" value="{{ request()->search }}" placeholder="{{ __('custom.search') }}">
-                        <div class="input-group-btn">
-                            <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-                        </div>
+                    <input type="text" name="search" class="form-control pull-right" value="{{ request()->search }}" placeholder="{{ __('custom.search') }}">
+                    <div class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                     </div>
+                </div>
                 </form><br>
             </div>
         </div>
@@ -43,7 +43,6 @@
                     
                     @foreach ($rows as $row)
                     <tr>
-                        
                         <td>{{ $row->id }}</td>
                         <td>{{ $row->name }}</td>
                         <td><img style="width:50px; height:50px" src="{{ $row->featured() }}" ></td>
@@ -52,7 +51,12 @@
                         <td>{{ $row->price() }}</td>
                         <td>{{ $row->will_be_available_on }}</td>
                         <td>{{ ucwords($row->furniture) }}</td>
-                        <td>{{ ucwords($row->status) }}</td>
+                        <td>{{ ucwords($row->status) }}
+                            @if ($row->status == 'pending')
+                                
+                            <br><br><a href="{{ route('properties.activate', $row) }}" class="btn btn-warning"> @lang('custom.activate')</a>
+                            @endif
+                        </td>
                         <td>{{ ucwords($row->payment_method) }}</td>
                         <td>{{ $row->created_at->format('d-m-Y h:i') }}</td>
                         <td>{{ $row->updated_at->format('d-m-Y h:i') }}</td>
@@ -73,18 +77,15 @@
                 </tbody>
             </table>
         </div>
-        <div class="text-center">
+            <div class="text-center">
 
-            {{ $rows->appends(request()->query())->links() }}
+                {{ $rows->appends(request()->query())->links() }}
+            </div>
+            <!-- /.box-body -->
         </div>
-        <!-- /.box-body -->
     </div>
-
-
-    @push('js')
-    <script src="/noty/noty.min.js">
-    </script>
-
-    @include('front-end._session')
-    @endpush
-    @endsection
+        @push('js')
+            <script src="/noty/noty.min.js"></script>
+            @include('front-end._session')
+        @endpush
+@endsection

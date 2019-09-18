@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\BackEnd;
 
 use App\AboutUs;
+use App\Property;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class AboutUsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['view_aboutus']);
+    }
+
 
     public function index(Request $request)
     {
@@ -71,7 +78,7 @@ class AboutUsController extends Controller
             'description'    =>  'required'
         ]);
 
-        $data['short_description'] = str_limit(strip_tags($request->description), 30) . ' ...';
+        $data['short_description'] = str_limit(strip_tags($request->description), 30) ;
 
 
         $aboutUs->update($data);
@@ -85,5 +92,15 @@ class AboutUsController extends Controller
         $aboutUs->delete();
         session()->flash('success', __('custom.deleted_successfully'));
         return back();
+    }
+
+
+    public function view_aboutus()
+    {
+        $title = __('custom.about_us');
+        $about_us = AboutUs::all();
+        $recent_properties = Property::where('status', 'active')->orderBy('id', 'DESC')->take(3)->get();
+
+        return view('aboutus.view', compact('title', 'about_us', 'recent_properties'));
     }
 }

@@ -15,7 +15,7 @@
         <h3>{{ $title }}</h3>
     </section>
     {{-- add your content here --}}
-        @include('front-end._message')        
+    @include('front-end._message')        
     <form action="{{ route('aboutus.store') }}" method="POST"   role="form" enctype="multipart/form-data">
 
         @csrf
@@ -43,6 +43,6 @@
         <script src="/noty/noty.min.js"></script>
         <script src="/ckeditor/ckeditor.js"></script>
             
-    @include('front-end._session')
+        @include('front-end._session')
     @endpush
 @endsection

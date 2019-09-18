@@ -14,28 +14,32 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'first_name', 'last_name', 'phone', 'user_type', 'email', 'password', 'address', 'city_id', 'state_id', 'profile_image'
+        'first_name', 
+        'last_name', 
+        'phone', 
+        'user_type', 
+        'email', 
+        'password', 
+        'address', 
+        'city_id', 
+        'state_id', 
+        'profile_image'
     ];
 
 
     protected $table = 'users';
 
+    
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
         'password', 'remember_token',
     ];
 
+    
     public function city()
     {
         return $this->belongsTo(City::class);
@@ -45,6 +49,23 @@ class User extends Authenticatable
     public function properties()
     {
         return $this->hasMany(Property::class);
+    }
+
+
+    public function activeProperties()
+    {
+        return $this->hasMany(Property::class)->where('status', 'active');
+    }
+
+
+    public function latestActiveProperties()
+    {
+        return $this->hasMany(Property::class)->where('status', 'active')->take(6)->latest();
+    }
+
+    public function pendingProperties()
+    {
+        return $this->hasMany(Property::class)->where('status', 'pending');
     }
 
 
@@ -81,12 +102,5 @@ class User extends Authenticatable
     {
         return ucwords($this->address) . ' ' . ucwords($this->state['name']) . ' ' . ucwords($this->city['name']);
     }
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+
 }

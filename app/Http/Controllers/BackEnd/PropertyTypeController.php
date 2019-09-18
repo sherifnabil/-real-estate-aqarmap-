@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\BackEnd;
 
+use App\Property;
 use App\PropertyType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class PropertyTypeController extends Controller
 {
+
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['viewProperties']);
+    }
 
     public function index(Request $request)
     {
@@ -81,5 +88,16 @@ class PropertyTypeController extends Controller
         $propertyType->delete();
         session()->flash('success', __('custom.deleted_successfully'));
         return back();
+    }
+
+    public function viewProperties(PropertyType $propertyType)
+    {
+        // dd($propertyType->id);
+        $title =  __('custom.property_type') . ' ' . ucwords($propertyType->name)  ;
+        $properties =  $propertyType->properties;
+
+        $recent_properties = Property::where('status', 'active')->orderBy('id', 'DESC')->take(3)->get();
+
+        return view('front-end2.view', compact('title', 'properties', 'recent_properties'));
     }
 }

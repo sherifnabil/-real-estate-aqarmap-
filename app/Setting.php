@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Setting extends Model
 {
     protected $fillable = [
-                'site_name',
-                'facebook',
-                'instagram',
-                'twitter',
-                'our_contact_number',
-                'address',
-                'site_image',
-                'city_id',
-                'state_id',
-                'site_description'
-            ];
+        'site_name',
+        'facebook',
+        'instagram',
+        'twitter',
+        'our_contact_number',
+        'address',
+        'site_image',
+        'city_id',
+        'state_id',
+        'site_description'
+    ];
 
     public function fullAddress()
     {

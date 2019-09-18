@@ -10,18 +10,41 @@ use App\Property;
 use App\PropertyType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Notifications\ActivateProperty;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Admin\StorePropertyRequest;
+use App\Http\Requests\Admin\UpdatePropertyRequest;
+use App\Http\Requests\User\Properties\StorePropertiesRequest;
+use App\Http\Requests\User\Properties\UpdatePropertiesRequest;
 
 class PropertiesController extends Controller
 {
 
+
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['viewProperty']);
+    }
+
     public function index(Request $request)
     {
-        $rows = Property::where('name', 'like', '%' . $request->search . '%')
-                            ->where('status', 'active')->paginate(15);
-        if (!$rows->count() > 0) {
-            session()->flash('success', __('custom.please_add_some_rows'));
-        }
+        $rows = Property::where('status', 'active')
+            ->where(function($q) use($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('contact', 'like', '%' . $request->search . '%')
+                ->orWhere('dimensionss', 'like', '%' . $request->search . '%')
+                ->orWhere('floors_num', 'like', '%' . $request->search . '%')
+                ->orWhere('rooms_num', 'like', '%' . $request->search . '%')
+                ->orWhere('baths_num', 'like', '%' . $request->search . '%')
+                ->orWhere('price', 'like', '%' . $request->search . '%')
+                ->orWhere('furniture', 'like', '%' . $request->search . '%')
+                ->orWhere('finish_type', 'like', '%' . $request->search . '%')
+                ->orWhere('payment_method', 'like', '%' . $request->search . '%');
+            })->paginate(15);
+
+        (!$rows->count() > 0) ?  session()->flash('success', __('custom.please_add_some_rows')) : '';
+        
         $title = __('custom.properties');
 
         return view('properties.index', compact('title', 'rows'));
@@ -64,10 +87,10 @@ class PropertiesController extends Controller
     }
 
 
-    public function store(Request $request)
+    public function store(StorePropertyRequest $request)
     {
         // dd($request->all());
-        $data = $request->validate($this->storeValidatioArray());
+        $data = $request->validated();
         
         
         $data['featured'] = request('featured')->store('properties');
@@ -138,15 +161,11 @@ class PropertiesController extends Controller
     }
 
 
-    public function update(Request $request, Property $property)
+    public function update(UpdatePropertyRequest $request, Property $property)
     {
 
-        $originalValiodationArr = $this->storeValidatioArray();
 
-        $originalValiodationArr['featured'] = 'sometimes|nullable|image';
-
-
-        $data = $request->validate($originalValiodationArr);
+        $data = $request->validated();
 
 
         if($request->featured){
@@ -245,40 +264,6 @@ class PropertiesController extends Controller
     }
 
 
-    protected function storeValidatioArray()
-    {
-        return [
-
-            'name'                      =>          'required|string',
-            // 'slug'                      =>          'required|string',
-            'lat'                       =>          'required|string', ///
-            'long'                      =>          'required|string', ///
-            'contact'                   =>          'required|numeric',
-            'dimensionss'               =>          'required|numeric',
-            'featured'                  =>          'required|image',
-            'floors_num'                =>          'required|numeric',
-            'rooms_num'                 =>          'required|numeric',
-            'baths_num'                 =>          'required|numeric',
-            'price'                     =>          'required|numeric',
-            'will_be_available_on'      =>          'required|string', ///
-            'description'               =>          'required|string', ///
-            'extra_images.*'            =>          'sometimes|nullable|image',
-            'have_garden'               =>          'required|boolean',
-            'is_price_negotiateable'    =>          'required|boolean',
-            'furniture'                 =>          'required|in:furnished,unfurnished',
-            'status'                    =>          'required|in:pending,active,refused', ///
-            'finish_type'               =>          'required|in:unfinished,semi_finished,lux,Extra_super_lux',
-            'seller_role'               =>          'required|in:owner,agent',
-            'payment_method'            =>          'required|in:cach,check',
-            'property_type_id'          =>          'required|numeric',
-            'category_id'               =>          'required|numeric',
-            'city_id'                   =>          'required|numeric',
-            'state_id'                  =>          'required|numeric',
-            'user_id'                   =>          'required|numeric',
-        ];
-    }
-
-
     public function pending(Request $request)
     {
         $rows = Property::where('name', 'like', '%' . $request->search . '%')
@@ -304,5 +289,178 @@ class PropertiesController extends Controller
     }
 
 
+
+    public function viewProperty(Property $property)
+    {
+
+        $property = Property::where('status', 'active')->first();
+        $related_properties = Property::where('status', 'active')->where('property_type_id', $property->propertyType->id)->take(3)->get();
+        // dd($related_properties);
+        $title = ucwords($property->name) . ' ' .  __('custom.property');
+
+        return view('front-end2.properties.view', compact('title', 'property', 'related_properties'));
+        
+    }
+
+
+    public function add_property()
+    {
+        $title = __('custom.add_property');
+        $cities = City::all();
+        $states = State::all();
+        $property_types = PropertyType::all();
+        $categories = Category::all();
+
+        
+        $payment_methods    =  $this->paymentMethods();
+        $seller_roles       = $this->sellerRoles();
+        $finish_types       = $this->finishTypes();
+        $status             = $this->statusTypes();
+        $furnish            = $this->furnishTypes();
+        $booleans           = [__('custom.no'),  __('custom.yes')];
+
+
+        return view('front-end2.properties.create', compact(
+            'title',
+            'cities',
+            'states',
+            'property_types',
+            'categories',
+            'payment_methods',
+            'seller_roles',
+            'finish_types',
+            'status',
+            'furnish',
+            'booleans'
+        ));
+    }
+
+
+    public function store_property(StorePropertiesRequest $request)
+    {
+        $data = $request->validated();
+        
+        $data['featured'] = request('featured')->store('properties');
+        $data['user_id'] = auth()->user()->id;
+        $data['status'] = 'pending';
+        
+        $other_images = [];
+        if($request->extra_images)
+        {
+            foreach ($request->extra_images as $img) {
+                $other_images[] = $img->store('properties');
+            }
+            
+        }
+        
+        $data['extra_images'] = implode('###', $other_images);
+        
+        $user = User::where('id', $request->user_id)->first();
+        $uniqueSlug =  array_random(str_split($data['name']));
+        $data['slug'] = str_slug($request->name) . '-' . auth()->user()->email . '-'  .$uniqueSlug;
+
+        $l = Property::create($data);
+        session()->flash('success', __('custom.created_successfully'));
+        return redirect()->route('properties.view', $l); 
+
+    }
+
+
+    public function edit_property(Property $property)
+    {
+        
+        $this->authorize('update', $property);
+
+        $title = __('custom.update_property');
+        $cities = City::all();
+        $states = State::all();
+        $property_types = PropertyType::all();
+        $categories = Category::all();
+
+
+        $payment_methods    = $this->paymentMethods();
+        $seller_roles       = $this->sellerRoles();
+        $finish_types       = $this->finishTypes();
+        $furnish            = $this->furnishTypes();
+        $booleans           = [__('custom.no'),  __('custom.yes')];
+
+        $row = $property;
+
+        return view('front-end2.properties.edit', compact(
+            'title',
+            'cities',
+            'states',
+            'property_types',
+            'categories',
+            'payment_methods',
+            'seller_roles',
+            'finish_types',
+            'furnish',
+            'booleans',
+            'row'
+        ));
+    }
+
+    public function update_property(UpdatePropertiesRequest $request, Property $property)
+    {
+        $this->authorize('update', $property);
+        
+        $data = $request->validated();
+        
+        $data['user_id'] = auth()->user()->id;
+
+        if ($request->featured) {
+
+            if (Storage::exists($property->featured)) {
+
+                Storage::delete($property->featured);
+            } //end if
+
+            $data['featured'] = request('featured')->store('properties');
+        } //end if
+
+        $other_images = [];
+
+        if (!empty($request->extra_images)) {
+
+            foreach ($request->extra_images as $img) {
+
+
+                $other_images[] = $img->store('properties');
+            } //end foreach
+
+            foreach ($property->extraImages() as $value) {
+                if (Storage::exists($value)) {
+
+                    Storage::delete($value);
+                }
+            } //end if
+
+            $data['extra_images'] = implode('###', $other_images);
+        } //end if
+
+        $user = auth()->user(); 
+        $uniqueSlug =  array_random(str_split($data['name']));
+        $data['slug'] = str_slug($request->name) . '-' . auth()->user()->email . '-'  . $uniqueSlug;
+
+        $property->update($data);
+        session()->flash('success', __('custom.updated_successfully'));
+        return redirect()->route('properties.view', $property);
+    }
+
+
+
+
+    public function activateProperty(Property $property)
+    {
+        $property->status = 'active';
+        $user = User::where('id', $property->user_id)->first();
+
+        $user->notify(new ActivateProperty($property, $user));
+        
+        session()->flash('success', __('updated_successfully'));
+        return redirect()->route('properties.index');
+
+    }
 
 }

@@ -1,8 +1,7 @@
 @extends('admins.partials.main')
 @section('content')
-
-<div class="content-wrapper">       
-     <div class="content-header"">
+    <div class="content-wrapper">       
+        <div class="content-header"">
             <h3 class="">{{ $title }}  <a href="{{ route('users.create') }}" class="btn btn-primary">@lang('custom.add')</a></h3>
             <div class="pull-right">
                 <form action="{{ route('admins') }}"> 
@@ -17,7 +16,7 @@
                 </form><br>
             </div>
         </div>
-        <!-- /.box-header -->
+            <!-- /.box-header -->
         <div class=" table table-bordered no-padding">
             <table class="table table-hover">
                 <thead>
@@ -76,9 +75,7 @@
 
 
     @push('js')
-    <script src="/noty/noty.min.js">
-    </script>
-
-    @include('front-end._session')
+        <script src="/noty/noty.min.js"></script>
+        @include('front-end._session')
     @endpush
-    @endsection
+@endsection

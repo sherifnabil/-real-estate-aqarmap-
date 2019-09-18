@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
-    
+
+    public function __construct()
+    {
+        $this->middleware('admin');
+    }
     public function index(Request $request)
     {
         $rows = Setting::when($request->search, function ($q) use ($request) {

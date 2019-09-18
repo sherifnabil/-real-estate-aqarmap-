@@ -1,8 +1,8 @@
 @extends('admins.partials.main')
 @section('content')
 
-<div class="content-wrapper">       
-     <div class="content-header"">
+    <div class="content-wrapper">       
+        <div class="content-header">
             <h3 class="">{{ $title }}  <a href="{{ route('aboutus.create') }}" class="btn btn-primary">@lang('custom.add')</a></h3>
             <div class="pull-right">
                 <form action="{{ route('aboutus.index') }}"> 
@@ -14,7 +14,7 @@
                             <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
-                </form><br>
+                </form> <br>
             </div>
         </div>
         <!-- /.box-header -->
@@ -35,32 +35,32 @@
                 <tbody>
                     
                     @foreach ($rows as $row)
-                    <tr>
-                        
-                        <td>{{ $row->id }}</td>
-                        <td>{{ $row->title }}</td>
-                        <td>{{ $row->short_description }}</td>
-                        <td>{{ $row->created_at->format('d-m-Y h:i') }}</td>
-                        <td>{{ $row->updated_at->format('d-m-Y h:i') }}</td>
-                        <td><a href="{{ route('aboutus.edit', $row) }}" class="btn btn-primary"> <i class="fa fa-edit"></i></a></td>
-                        <td>
-                            <form action="{{ route('aboutus.destroy', $row) }}" method="POST">
-                                @method('DELETE')
-                                @csrf
-                                <button type="submit" class="btn btn-danger">
+                        <tr>
+                            
+                            <td>{{ $row->id }}</td>
+                            <td>{{ $row->title }}</td>
+                            <td>{{ $row->short_description }}</td>
+                            <td>{{ $row->created_at->format('d-m-Y h:i') }}</td>
+                            <td>{{ $row->updated_at->format('d-m-Y h:i') }}</td>
+                            <td><a href="{{ route('aboutus.edit', $row) }}" class="btn btn-primary"> <i class="fa fa-edit"></i></a></td>
+                            <td>
+                                <form action="{{ route('aboutus.destroy', $row) }}" method="POST">
+                                    @method('DELETE')
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">
 
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
                     
                     @endforeach
                 </tbody>
             </table>
         </div>
-        <div class="text-center">
 
+        <div class="text-center">
             {{ $rows->appends(request()->query())->links() }}
         </div>
         <!-- /.box-body -->
@@ -68,9 +68,7 @@
 
 
     @push('js')
-    <script src="/noty/noty.min.js">
-    </script>
-
-    @include('front-end._session')
+        <script src="/noty/noty.min.js"></script>
+        @include('front-end._session')
     @endpush
-    @endsection
+@endsection

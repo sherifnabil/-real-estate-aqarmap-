@@ -64,55 +64,24 @@
 
             <div class="form-group ">
                 <label>{{ __('custom.address') }}: </label>                                            
-                <input 
-                    id="address" 
-                    type="text" 
-                    class="form-control @error('address') is-invalid @enderror" 
-                    name="address"
-                    value="{{ old('address') }}" 
-                    required 
-                    autocomplete="address" 
-                >
-            
+                <input id="address" type="text"  class="form-control @error('address') is-invalid @enderror" name="address" value="{{ old('address') }}" required  autocomplete="address" >
             </div>
 
             
             <div class="form-group ">
                 <label >{{ __('custom.city') }}: </label>
-
-
                 <select name="city_id" id="city" class="form-control" >
-                        <option ></option>
-                        @foreach ($cities as $city)
-                        <option value="{{ $city->id }}">{{ $city->name }}</option>
-                        @endforeach
-                </select>
-                
-            </div>
-
-            
-            <div class="form-group ">
-                <label >{{ __('custom.state') }}: </label>
-
-
-                <select name="state_id"  class="form-control" >
-                        <option ></option>
-                        @foreach ($states as $state)
-                        <option  value="{{ $state->id }}">{{ $state->name }}</option>
-                        @endforeach
-                </select>
-                
-            </div>
-
-            {{-- <div class="form-group ">
-                <label>{{ __('custom.state') }}: </label>
-                <select name="state_id" id="state" class="form-control" >
                     <option ></option>
-
+                    @foreach ($cities as $city)
+                        <option value="{{ $city->id }}">{{ $city->name }}</option>
+                    @endforeach
                 </select>
+                
+            </div>
 
-            </div> --}}
-            <div >
+            <div id="statesContainer"></div>
+
+            <div>
                 <button type="submit" class="btn btn-primary pull-{{ app()->getLocale() == 'en' ? 'right' : 'left' }}">{{ $title }}</button>
             </div>
         </div>
@@ -123,22 +92,21 @@
     @push('js')
         <script src="/noty/noty.min.js"></script>
         <script>
-                $(".image").change(function () {
-            
-                  if (this.files && this.files[0]) {
-                      var reader = new FileReader();
-            
-                      reader.onload = function (e) {
-                          $('.image-preview').attr('src', e.target.result);
-                      }
-            
-                      reader.readAsDataURL(this.files[0]);
-                  }
-            
-                });
-            
-            </script>
+            $(".image").change(function () {
+        
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+        
+                    reader.onload = function (e) {
+                        $('.image-preview').attr('src', e.target.result);
+                    }
+        
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        
+        </script>
         @include('custom-auth.ajax')        
-    @include('front-end._session')
+        @include('front-end._session')
     @endpush
 @endsection

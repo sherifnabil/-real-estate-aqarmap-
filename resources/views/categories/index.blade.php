@@ -1,14 +1,12 @@
 @extends('admins.partials.main')
 @section('content')
 
-<div class="content-wrapper">       
-     <div class="content-header"">
+    <div class="content-wrapper">       
+        <div class="content-header"">
             <h3 class="">{{ $title }}  <a href="{{ route('categories.create') }}" class="btn btn-primary">@lang('custom.add')</a></h3>
             <div class="pull-right">
                 <form action="{{ route('categories.index') }}"> 
-                        <div class="input-group input -group-sm" style="width: 150px;">
-
-                        
+                    <div class="input-group input -group-sm" style="width: 150px;">
                         <input type="text" name="search" class="form-control pull-right" value="{{ request()->search }}" placeholder="{{ __('custom.search') }}">
                         <div class="input-group-btn">
                             <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
@@ -46,7 +44,6 @@
                                 @method('DELETE')
                                 @csrf
                                 <button type="submit" class="btn btn-danger">
-
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </form>
@@ -63,12 +60,8 @@
         </div>
         <!-- /.box-body -->
     </div>
-
-
     @push('js')
-    <script src="/noty/noty.min.js">
-    </script>
-
-    @include('front-end._session')
+        <script src="/noty/noty.min.js"></script>
+        @include('front-end._session')
     @endpush
-    @endsection
+@endsection

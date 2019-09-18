@@ -9,18 +9,24 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Middleware\AdminsMiddleware;
+use App\Http\Requests\User\users\UpdateProfile;
+use App\Http\Requests\Admin\Users\StoreUsersRequest;
+use App\Http\Requests\Admin\Users\UpdateUsersRequest;
 
 class UsersController extends Controller
 {
 
-    // public function __construct()
-    // {
-    //     $this->middleware(AdminsMiddleware);
-    // }
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['profile', 'viewProperties']);
+    }
 
     public function temp()
     {
-        return view('front-end.index');
+        // return view('front-end.index');
+        // return view('front-end2.layouts.content');
+        return view('front-end2.view');
     }
 
 
@@ -34,16 +40,17 @@ class UsersController extends Controller
     {
      
         $rows = User::where('user_type', 'user')->when($request->search, function ($q) use ($request) {
-            return $q->
-            where('first_name', 'like', '%' . $request->search . '%')
-            ->orWhere('last_name', 'like', '%' . $request->search . '%');
-        })->paginate(10);
+            return $q->where('first_name', 'like', '%' . $request->search . '%')
+                ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%')
+                ->orWhere('phone', 'like', '%' . $request->search . '%')
+                ->orWhere('address', 'like', '%' . $request->search . '%');
+            })->paginate(10);
 
         // dd($rows);
 
-        if (!$rows->count() > 0) {
-            session()->flash('success', __('custom.please_add_some_rows'));
-        }
+        (!$rows->count() > 0) ?  session()->flash('success', __('custom.please_add_some_rows')) : '';
+
         $title = __('custom.users');
 
         return view('users.index', compact('title', 'rows'));
@@ -56,17 +63,14 @@ class UsersController extends Controller
 
         $rows = User::where('user_type', 'admin')->when($request->search, function ($q) use ($request) {
             return $q->where('first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('last_name', 'like', '%' . $request->search . '%');
+                ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%')
+                ->orWhere('phone', 'like', '%' . $request->search . '%')
+                ->orWhere('address', 'like', '%' . $request->search . '%');
         })->paginate(10);
 
-        // dd($rows);
-        // where('user_type', 'admin')
-        //     ->where('first_name', 'like', '%' . $request->search . '%')
-        //     ->orWhere('last_name', 'like', '%' . $request->search . '%')->paginate(10);
-
-        if (!$rows->count() > 0) {
-            session()->flash('success', __('custom.please_add_some_rows'));
-        }
+        (!$rows->count() > 0) ?  session()->flash('success', __('custom.please_add_some_rows')) : '';
+        
         $title = __('custom.admins');
 
         return view('users.admins', compact('title', 'rows'));
@@ -84,29 +88,17 @@ class UsersController extends Controller
 
     public function ajaxStates($id)
     {
-        // dd($id);
         if (request()->ajax()) {
-            $states = State::where('city_id', $id)
-            ->get();
+            $states = State::where('city_id', $id)->get();
         }
            return view('users.states-select', compact('states'));
     }
 
 
-    public function store(Request $request)
+    public function store(StoreUsersRequest $request)
     {
-        $credentials = $request->validate([
-            'first_name'        => ['required', 'string', 'max:50'],
-            'last_name'         => ['required', 'string', 'max:50'],
-            'email'             => ['required', 'string', 'email', 'max:50', 'unique:users'],
-            'phone'             => ['required', 'numeric', 'min:11'],
-            'address'           => ['required', 'string', 'max:100'],
-            'user_type'         => ['required', 'string'],
-            'city_id'           => ['required', 'numeric'],
-            'state_id'          => ['required', 'numeric'],
-            'password'          => ['required', 'string', 'min:8', 'confirmed'],
-            'profile_image'     => ['required', 'image'],
-        ]);
+        
+        $credentials = $request->validated();
 
         $credentials['profile_image'] = request('profile_image')->store('users');
         $credentials['password'] = bcrypt(request('password'));
@@ -148,20 +140,9 @@ class UsersController extends Controller
 
 
     
-    public function update(Request $request, User $user)
+    public function update(UpdateUsersRequest $request, User $user)
     {
-        $credentials = $request->validate([
-            'first_name'        => 'required|string|max:50',
-            'last_name'         => 'required|string|max:50',
-            'email'             => 'required|string|email|max:50|unique:users,email,' . $user->id,
-            'phone'             => 'required|numeric|min:11',
-            'address'           => 'required|string|max:100',
-            'user_type'         => 'required|string',
-            'city_id'           => 'required|numeric',
-            'state_id'          => 'required|numeric',
-            'password'          => 'sometimes|nullable|min:8|confirmed',
-            'profile_image'     => 'sometimes|image',
-        ]);
+        $credentials = $request->validated();
         //  $request->except(['password', 'password_confirmation', 'profile_image']);
 
         if(!empty($request->password)){
@@ -200,5 +181,59 @@ class UsersController extends Controller
         $user->delete();
         session()->flash('success', __('custom.deleted_successfully'));
         return back();
+    }
+
+
+    public function profile(User $user)
+    {
+        $title = $user->fullName() . ' ' .  __('custom.profile');
+        $properties = $user->activeProperties;
+        // $properties = $user->properties;
+        $recent_properties = $user->latestActiveProperties;
+
+        $pending_properties    =   $user->pendingProperties;
+        return view('front-end.users.profile', compact('title', 'user', 'properties', 'recent_properties', 'pending_properties'));
+
+    }
+
+    public function edit_profile(User $user)
+    {
+
+        $this->authorize('update', $user);
+
+        $row = $user;
+        $states = State::all();
+        $cities = City::all();
+        $title = __('custom.update_user');
+
+        return view('front-end.users.edit_profile', compact('title', 'row', 'cities', 'states'));
+    }
+
+
+    public function update_profile(User $user, UpdateProfile $request)
+    {
+        $this->authorize('update', $user);
+
+        $credentials = $request->validated();
+
+        if (!empty($request->password)) {
+            $credentials['password'] = bcrypt($request->password);
+        } else {
+            unset($credentials['password']);
+        }
+
+
+        if (request()->has('profile_image')) {
+            if (Storage::exists($user->profile_image)) {
+
+                Storage::delete($user->profile_image);
+            }
+            $credentials['profile_image'] = $request->profile_image->store('users');
+        }
+
+        $user->update($credentials);
+
+        return redirect()->route('users.profile', $user);
+       
     }
 }

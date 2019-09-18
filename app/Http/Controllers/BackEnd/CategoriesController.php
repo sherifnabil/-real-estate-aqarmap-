@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\BackEnd;
 
 use App\Category;
+use App\Property;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CategoriesController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['viewProperties']);
+    }
+
 
     public function index(Request $request)
     {
@@ -34,7 +41,7 @@ class CategoriesController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'          =>  'required|string',
+            'name'          =>  'required|string|unique:categories',
         ]);
 
 
@@ -82,5 +89,20 @@ class CategoriesController extends Controller
         $category->delete();
         session()->flash('success', __('custom.deleted_successfully'));
         return back();
+    }
+
+    public function viewProperties(Category $category)
+    {
+        // $category = Category::where('slug', $category)->first();
+        $title = ucwords($category->name) . ' ' .  __('custom.category') ;
+        $properties =  $category->properties;
+        // $properties = Property::where('category_id', $category->id);
+        // dd($properties);
+
+        $recent_properties = Property::where('status', 'active')->orderBy('id', 'DESC')->take(3)->get();
+
+        // dd($recent_properties);
+
+        return view('front-end2.view', compact('title', 'properties', 'recent_properties'));
     }
 }
